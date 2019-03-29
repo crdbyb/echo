@@ -149,7 +149,7 @@ bool Mystring::operator<(const char *s){
 }
 
 bool Mystring::operator<(const Mystring &s){
-	if(strcmp(p,s) < 0){
+	if(strcmp(p,s.p) < 0){
 		return true;
 	}
 	return false;
@@ -163,7 +163,7 @@ bool Mystring::operator>(const char *s){
 }
 
 bool Mystring::operator>(const Mystring &s){
-	if(strcmp(p,s) > 0){
+	if(strcmp(p,s.p) > 0){
 		return true;
 	}
 	return false;
