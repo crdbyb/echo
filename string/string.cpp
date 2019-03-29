@@ -30,7 +30,7 @@ Mystring::~Mystring(){
 }
 
 ostream& operator<<(ostream &os, Mystring &s){
-    os << s.p;
+    cout << s.p << endl;
     return os;
 }
 
@@ -51,10 +51,128 @@ inline size_t Mystring::size() const{
     return len;
 }
 
-Mystring Mystring::operator+(const Mystring &s){
-    Mystring a;
-    a.p = new char[strlen(this->p) + strlen(s.p) + 1];
-    strcpy(a.p, this->p);
-    strcat(a.p, s.p);
-    return a;
+inline char& Mystring::operator[](int n){
+	if(n >= len){
+		return p[len-1];
+	}
+	else{
+		return p[n];
+	}
+}
+
+Mystring& Mystring::operator+(const char *s){
+	char *q = p;
+	len = strlen(p) + strlen(s);
+	p = new char[len + 1];
+	strcpy(p,q);
+	strcat(p,s);
+	delete[] q;
+	return *this;
+}
+
+Mystring& Mystring::operator+(const Mystring &s) {
+    strcat(this->p,s.p);
+    return *this;
+}
+
+Mystring& Mystring::operator=(const char *s){
+	if(p != NULL){
+		delete[] p;
+		p = NULL;
+	}
+	len = strlen(s);
+	p = new char[len + 1];
+	strcpy(p,s);
+	return *this;
+}
+
+Mystring& Mystring::operator=(const Mystring &s){
+    if(this == &s){
+        return *this;
+    }
+    if(p != NULL){
+        delete[] p;
+        p = NULL;
+    }
+    len = s.len;
+    p = new char[len + 1];
+    strcpy(p,s.p);
+    return *this;
+}
+
+Mystring& Mystring::operator+=(const char *s){
+	char *q = p;
+	len = strlen(p) + strlen(s);
+	p = new char[len + 1];
+	strcpy(p,q);
+	strcat(p,s);
+	delete[] q;
+	return *this;
+}
+
+Mystring& Mystring::operator+=(const Mystring &s){
+	*this = *this + s.p;
+	return *this;
+}
+
+bool Mystring::operator==(const char *s){
+	if(strcmp(p,s) == 0){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool Mystring::operator==(const Mystring &s){
+	if(strcmp(p,s.p) == 0){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+bool Mystring::operator!=(const char *s){
+	return !(*this == s);
+}
+
+bool Mystring::operator!=(const Mystring &s){
+	return !(*this == s);
+}
+
+bool Mystring::operator<(const char *s){
+	if(strcmp(p,s) < 0){
+		return true;
+	}
+	return false;
+}
+
+bool Mystring::operator<(const Mystring &s){
+	if(strcmp(p,s) < 0){
+		return true;
+	}
+	return false;
+}
+
+bool Mystring::operator>(const char *s){
+	if(strcmp(p,s) > 0){
+		return true;
+	}
+	return false;
+}
+
+bool Mystring::operator>(const Mystring &s){
+	if(strcmp(p,s) > 0){
+		return true;
+	}
+	return false;
+}
+
+bool Mystring::empty(){
+	bool m = false;
+	if(this->size() <= 0){
+		m = true;
+	}
+	return m;
 }
