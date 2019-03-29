@@ -41,6 +41,9 @@ class Mystring{
             bool operator<(const Mystring &s);          //重载<
             bool operator>(const char *s);              //重载>
             bool operator>(const Mystring &s);          //重载>
+    public:
+            char* begin();
+            char* end();
 };
 
 

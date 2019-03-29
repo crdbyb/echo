@@ -176,3 +176,11 @@ bool Mystring::empty(){
 	}
 	return m;
 }
+
+char* Mystring::begin(){
+	return p;
+}
+
+char* Mystring::end(){
+	return p + len;
+}
