@@ -16,4 +16,5 @@ int main(){
 		cout << "2" << endl;
 	}
 	cout << s2.size() << endl;
+	cout << s1[1] << endl;
 }
