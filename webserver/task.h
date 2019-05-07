@@ -119,12 +119,12 @@ read:	size = read(connfd, buffer, BUFFER_SIZE - 1);  //读取Http请求报文
 		else  //未知的方法
 		{
 			char message[512];
-			sprintf(message, "<html><title>Tinyhttpd Error</title>");
+			sprintf(message, "<html><title>Error</title>");
 			sprintf(message, "%s<body>\r\n", message);
 			sprintf(message, "%s 501\r\n", message);
 			sprintf(message, "%s <p>%s: Httpd does not implement this method", 
 				message, method);
-			sprintf(message, "%s<hr><h3>The Tiny Web Server<h3></body>", message);
+			sprintf(message, "%s<hr><h3>Web Server<h3></body>", message);
 			response(message, 501);
 		}
  
