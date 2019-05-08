@@ -18,8 +18,7 @@
 char *path = "/home/neko/网络编程/2"; //路径
 const int BUFFER_SIZE = 4096;
  
-class task
-{
+class task{
 private:
 	int connfd;
  
@@ -28,96 +27,80 @@ public:
 	task(int fd):connfd(fd){}
 	~task(){}
  
-	void response(char *message, int status)  //错误响应函数，status是响应状态码
-	{
+	void response(char *message, int status){
 		char buf[512];
-		sprintf(buf, "HTTP/1.1 %d OK\r\nConnection: Close\r\n"  //响应头
+		sprintf(buf, "HTTP/1.1 %d OK\r\nConnection: Close\r\n"
 		"content-length:%d\r\n\r\n", status, strlen(message));
  
 		sprintf(buf, "%s%s", buf, message);
 		write(connfd, buf, strlen(buf));
  
 	}
-	void response_file(int size, int status)  //请求静态文件响应函数，size为文件大小
-	{
+	void response_file(int size, int status){
 		char buf[128];
 		sprintf(buf, "HTTP/1.1 %d OK\r\nConnection: Close\r\n"
 		"content-length:%d\r\n\r\n", status, size);
 		write(connfd, buf, strlen(buf));
 	}
  
-	void response_get(char *filename);   //Get函数
+	void response_get(char *filename);
  
-	void response_post(char *filename, char *argv);  //POST函数
+	void response_post(char *filename, char *argv);
  
 	void doit();
 };
  
-void task::doit()
-{
+void task::doit(){
 	char buffer[BUFFER_SIZE];
 	int size;
-read:	size = read(connfd, buffer, BUFFER_SIZE - 1);  //读取Http请求报文
-	if(size > 0)
-	{
+read:	size = read(connfd, buffer, BUFFER_SIZE - 1);
+	if(size > 0){
 		char method[5];
 		char filename[50];
 		int i, j;
 		i = j = 0;
-		while(buffer[j] != ' ' && buffer[j] != '\0')//获取请求方法
-		{
+		while(buffer[j] != ' ' && buffer[j] != '\0'){
 			method[i++] = buffer[j++];
 		}
 		++j;
 		method[i] = '\0';
 		i = 0;
-		while(buffer[j] != ' ' && buffer[j] != '\0')//获取请求文件
-		{
+		while(buffer[j] != ' ' && buffer[j] != '\0'){
 			filename[i++] = buffer[j++];
 		}
 		filename[i] = '\0';
  
-		if(strcasecmp(method, "GET") == 0)  //get method
-		{
+		if(strcasecmp(method, "GET") == 0){
 			response_get(filename);
 		}
-		else if(strcasecmp(method, "POST") == 0)  //post method
-		{
-			//printf("Begin\n");
+		else if(strcasecmp(method, "POST") == 0){
 			char argvs[100];
 			memset(argvs, 0, sizeof(argvs));
 			int k = 0;
 			char *ch = NULL;
 			++j;
-			while((ch = strstr(argvs, "Content-Length")) == NULL) //查找请求头部中的Content-Length行
-			{
+			while((ch = strstr(argvs, "Content-Length")) == NULL){
 				k = 0;
 				memset(argvs, 0, sizeof(argvs));
-				while(buffer[j] != '\r' && buffer[j] != '\0')
-				{
+				while(buffer[j] != '\r' && buffer[j] != '\0'){
 					argvs[k++] = buffer[j++];
 				}
 				++j;
-				//printf("%s\n", argvs);
 			}
 			int length;
-			char *str = strchr(argvs, ':');  //获取POST请求数据的长度
-			//printf("%s\n", str);
+			char *str = strchr(argvs, ':');
 			++str;
 			sscanf(str, "%d", &length);
-			//printf("length:%d\n", length);
-			j = strlen(buffer) - length;    //从请求报文的尾部获取请求数据
+			j = strlen(buffer) - length;
 			k = 0;
 			memset(argvs, 0, sizeof(argvs));
 			while(buffer[j] != '\r' && buffer[j] != '\0')
 				argvs[k++] = buffer[j++];
  
 			argvs[k] = '\0';
-			//printf("%s\n", argvs);
-			response_post(filename, argvs);  //POST方法
+			response_post(filename, argvs);
 		}
-		else  //未知的方法
-		{
+		else{
 			char message[512];
 			sprintf(message, "<html><title>Error</title>");
 			sprintf(message, "%s<body>\r\n", message);
@@ -130,30 +113,27 @@ read:	size = read(connfd, buffer, BUFFER_SIZE - 1);  //读取Http请求报文
  
  
 	}
-	else if(size < 0)//读取失败，重新读取
+	else if(size < 0)
 		goto read;
  
-	sleep(3);  //wait for client close, avoid TIME_WAIT
+	sleep(3);
 	close(connfd);
 }
  
-void task::response_get(char *filename)
-{
+void task::response_get(char *filename){
 	char file[100];
 	strcpy(file, path);
  
 	int i = 0;
 	bool is_dynamic = false;
 	char argv[20];
-	//查找是否有？号
 	while(filename[i] != '?' && filename[i] != '\0')
 		    ++i;
-	if(filename[i] == '?')
-	{	//有?号，则是动态请求
+	if(filename[i] == '?'){
 		int j = i;
 		++i;
 		int k = 0;
-		while(filename[i] != '\0')  //分离参数和文件名
+		while(filename[i] != '\0')
 			argv[k++] = filename[i++];
 		argv[k] = '\0';
 		filename[j] = '\0';
@@ -169,8 +149,7 @@ void task::response_get(char *filename)
 	struct stat filestat;
 	int ret = stat(file, &filestat);
  
-	if(ret < 0 || S_ISDIR(filestat.st_mode)) //file doesn't exits
-	{
+	if(ret < 0 || S_ISDIR(filestat.st_mode)){
 		char message[512];
 		sprintf(message, "<html><title>Error</title>");
 		sprintf(message, "%s<body>\r\n", message);
@@ -182,31 +161,22 @@ void task::response_get(char *filename)
 		return;
 	}
  
-	if(is_dynamic)
-	{
-		if(fork() == 0) 
-		/*创建子进程执行对应的子程序，多线程中，创建子进程，
-		只有当前线程会被复制，其他线程就“不见了”，
-		而且fork后执行execl，程序被进程被重新加载*/
-		{
+	if(is_dynamic){
+		if(fork() == 0) {
 			dup2(connfd, STDOUT_FILENO);  
-			//将标准输出重定向到sockfd,将子程序输出内容写到客户端去。
-	    		execl(file, argv); //执行子程序
+	    		execl(file, argv);
 		}
 		wait(NULL);
 	}
-	else
-	{
+	else{
 		int filefd = open(file, O_RDONLY);
 		response_file(filestat.st_size, 200);
-		//使用“零拷贝”发送文件
 		sendfile(connfd, filefd, 0, filestat.st_size);
 	}
 }
  
  
-void task::response_post(char *filename, char *argvs)
-{
+void task::response_post(char *filename, char *argvs){
 	char file[100];
 	strcpy(file, path);
  
@@ -215,8 +185,7 @@ void task::response_post(char *filename, char *argvs)
 	struct stat filestat;
 	int ret = stat(file, &filestat);
 	printf("%s\n", file);
-	if(ret < 0 || S_ISDIR(filestat.st_mode)) //file doesn't exits
-	{
+	if(ret < 0 || S_ISDIR(filestat.st_mode)){
 		char message[512];
 		sprintf(message, "<html><title>Error</title>");
 		sprintf(message, "%s<body>\r\n", message);
@@ -230,9 +199,8 @@ void task::response_post(char *filename, char *argvs)
  
 	char argv[20];
 	int a, b;
-	ret = sscanf(argvs, "a=%d&b=%d", &a, &b);//判断参数是否正确
-	if(ret < 0 || ret != 2)
-	{
+	ret = sscanf(argvs, "a=%d&b=%d", &a, &b);
+	if(ret < 0 || ret != 2){
 		char message[512];
 		sprintf(message, "<html><title>Error</title>");
 		sprintf(message, "%s<body>\r\n", message);
@@ -244,14 +212,9 @@ void task::response_post(char *filename, char *argvs)
 		return;
 	}
 	sprintf(argv, "%d&%d", a, b);
-	if(fork() == 0) 
-	/*创建子进程执行对应的子程序，多线程中，创建子进程，
-	只有当前线程会被复制，其他线程就“不见了”，
-	而且fork后执行execl，程序被进程被重新加载*/
-	{
+	if(fork() == 0) {
 		dup2(connfd, STDOUT_FILENO);  
-		//将标准输出重定向到sockfd,将子程序输出内容写到客户端去。
-		execl(file, argv); //执行子程序
+		execl(file, argv); 
 	}
 	wait(NULL);
 }
